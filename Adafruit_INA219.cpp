@@ -390,45 +390,52 @@ void Adafruit_INA219::setCalibration_32V_1A() {
  */
 void Adafruit_INA219::setCalibration_16V_400mA() {
 
+  /*!
+ *  @brief set device to alibration which uses the highest precision for
+ *     current measurement (0.1mA), at the expense of
+ *     only supporting 16V at 400mA max.
+ */
+void Adafruit_INA219::setCalibration_16V_400mA() {
+
   // Calibration which uses the highest precision for
   // current measurement (0.1mA), at the expense of
   // only supporting 16V at 400mA max.
 
-  // VBUS_MAX = 16V
-  // VSHUNT_MAX = 0.04          (Assumes Gain 1, 40mV)
-  // RSHUNT = 0.1               (Resistor value in ohms)
+  // VBUS_MAX = 24V
+  // VSHUNT_MAX = 0.25          (Assumes Gain 1, 40mV)
+  // RSHUNT = 0.05               (Resistor value in ohms)
 
   // 1. Determine max possible current
   // MaxPossible_I = VSHUNT_MAX / RSHUNT
-  // MaxPossible_I = 0.4A
+  // MaxPossible_I = 5A
 
   // 2. Determine max expected current
-  // MaxExpected_I = 0.4A
+  // MaxExpected_I = 5A
 
   // 3. Calculate possible range of LSBs (Min = 15-bit, Max = 12-bit)
   // MinimumLSB = MaxExpected_I/32767
-  // MinimumLSB = 0.0000122              (12uA per bit)
+  // MinimumLSB = 0.0000152              (12uA per bit)
   // MaximumLSB = MaxExpected_I/4096
-  // MaximumLSB = 0.0000977              (98uA per bit)
+  // MaximumLSB = 0.001221              (98uA per bit)
 
   // 4. Choose an LSB between the min and max values
   //    (Preferrably a roundish number close to MinLSB)
-  // CurrentLSB = 0.00005 (50uA per bit)
+  // CurrentLSB = 0.00025 (250uA per bit)
 
   // 5. Compute the calibration register
   // Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
   // Cal = 8192 (0x2000)
 
-  ina219_calValue = 8192;
+  ina219_calValue = 3276;
 
   // 6. Calculate the power LSB
   // PowerLSB = 20 * CurrentLSB
-  // PowerLSB = 0.001 (1mW per bit)
+  // PowerLSB = 0.005 (5mW per bit)
 
   // 7. Compute the maximum current and shunt voltage values before overflow
   //
   // Max_Current = Current_LSB * 32767
-  // Max_Current = 1.63835A before overflow
+  // Max_Current = 8.19A before overflow
   //
   // If Max_Current > Max_Possible_I then
   //    Max_Current_Before_Overflow = MaxPossible_I
@@ -437,10 +444,10 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   // End If
   //
   // Max_Current_Before_Overflow = MaxPossible_I
-  // Max_Current_Before_Overflow = 0.4
+  // Max_Current_Before_Overflow = 5A
   //
   // Max_ShuntVoltage = Max_Current_Before_Overflow * RSHUNT
-  // Max_ShuntVoltage = 0.04V
+  // Max_ShuntVoltage = 0.25V
   //
   // If Max_ShuntVoltage >= VSHUNT_MAX
   //    Max_ShuntVoltage_Before_Overflow = VSHUNT_MAX
@@ -449,7 +456,7 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   // End If
   //
   // Max_ShuntVoltage_Before_Overflow = VSHUNT_MAX
-  // Max_ShuntVoltage_Before_Overflow = 0.04V
+  // Max_ShuntVoltage_Before_Overflow = 0.25V
 
   // 8. Compute the Maximum Power
   // MaximumPower = Max_Current_Before_Overflow * VBUS_MAX
@@ -457,7 +464,7 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   // MaximumPower = 6.4W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 20;    // Current LSB = 50uA per bit (1000/50 = 20)
+  ina219_currentDivider_mA = 4;    // Current LSB = 50uA per bit (1000/50 = 20)
   ina219_powerMultiplier_mW = 1.0f; // Power LSB = 1mW per bit
 
   // Set Calibration register to 'Cal' calculated above
@@ -473,6 +480,8 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   Adafruit_BusIO_Register config_reg =
       Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
+}
+
 }
 
 /*!
