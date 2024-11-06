@@ -397,7 +397,7 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
  */
 void Adafruit_INA219::setCalibration_16V_400mA() {
 
-  // Calibration which uses the highest precision for
+    // Calibration which uses the highest precision for
   // current measurement (0.1mA), at the expense of
   // only supporting 16V at 400mA max.
 
@@ -464,7 +464,7 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
   // MaximumPower = 6.4W
 
   // Set multipliers to convert raw current/power values
-  ina219_currentDivider_mA = 4;    // Current LSB = 50uA per bit (1000/50 = 20)
+  ina219_currentDivider_mA = 2;    // Current LSB = 50uA per bit (1000/50 = 20)
   ina219_powerMultiplier_mW = 1.0f; // Power LSB = 1mW per bit
 
   // Set Calibration register to 'Cal' calculated above
@@ -472,16 +472,14 @@ void Adafruit_INA219::setCalibration_16V_400mA() {
       Adafruit_BusIO_Register(i2c_dev, INA219_REG_CALIBRATION, 2, MSBFIRST);
   calibration_reg.write(ina219_calValue, 2);
   // Set Config register to take into account the settings above
-  uint16_t config = INA219_CONFIG_BVOLTAGERANGE_16V |
-                    INA219_CONFIG_GAIN_1_40MV | INA219_CONFIG_BADCRES_12BIT |
+  uint16_t config = INA219_CONFIG_BVOLTAGERANGE_32V |
+                    INA219_CONFIG_GAIN_8_320MV | INA219_CONFIG_BADCRES_12BIT |
                     INA219_CONFIG_SADCRES_12BIT_1S_532US |
                     INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
 
   Adafruit_BusIO_Register config_reg =
       Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
-}
-
 }
 
 /*!
