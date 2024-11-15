@@ -382,14 +382,6 @@ void Adafruit_INA219::setCalibration_32V_1A() {
       Adafruit_BusIO_Register(i2c_dev, INA219_REG_CONFIG, 2, MSBFIRST);
   _success = config_reg.write(config, 2);
 }
-
-/*!
- *  @brief set device to alibration which uses the highest precision for
- *     current measurement (0.1mA), at the expense of
- *     only supporting 16V at 400mA max.
- */
-void Adafruit_INA219::setCalibration_16V_400mA() {
-
   /*!
  *  @brief set device to alibration which uses the highest precision for
  *     current measurement (0.1mA), at the expense of
